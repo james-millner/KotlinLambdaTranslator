@@ -7,6 +7,7 @@
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin.
     id("org.jetbrains.kotlin.jvm") version "1.3.61"
+    id("com.github.johnrengelman.shadow") version "5.1.0"
 
     // Apply the application plugin to add support for building a CLI application.
     application
@@ -34,8 +35,8 @@ dependencies {
     implementation(platform("software.amazon.awssdk:bom:2.15.21"))
     implementation("software.amazon.awssdk:sdk-core")
     implementation("software.amazon.awssdk:translate")
-    implementation("software.amazon.awssdk:lambda")
 
+    implementation("com.amazonaws:aws-lambda-java-core:1.2.1")
 }
 
 application {

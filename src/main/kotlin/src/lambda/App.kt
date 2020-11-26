@@ -3,25 +3,28 @@
  */
 package src.lambda
 
-import software.amazon.awssdk.services.translate.TranslateClient
-import software.amazon.awssdk.services.translate.model.TranslateTextRequest
-import software.amazon.awssdk.services.translate.model.TranslateTextResponse
-import src.lambda.config.getDefaultCreds
+import com.amazonaws.services.lambda.runtime.Context
+import com.amazonaws.services.lambda.runtime.RequestHandler
 
-class AwsTranslator {
+class HandlerInput {
+    var message: String = ""
+    var sourceLangCode: String = "en"
+    var targetLangCode: String = ""
+}
 
-    var translateClient: TranslateClient = TranslateClient.builder()
-            .credentialsProvider(getDefaultCreds())
-            .build()
+data class HandlerOutput(
+        val translatedText: String?
+)
 
-    fun translate(text: String, sourceLangCode: String, targetLangCode: String): TranslateTextResponse? {
+class TranslatorHandler : RequestHandler<HandlerInput, HandlerOutput> {
+    override fun handleRequest(input: HandlerInput?, context: Context?): HandlerOutput {
 
-        val request = TranslateTextRequest.builder()
-                .sourceLanguageCode(sourceLangCode)
-                .targetLanguageCode(targetLangCode)
-                .text(text)
-                .build()
+        val awsTranslator = AwsTranslator()
 
-        return translateClient.translateText(request)
+        val response = input?.let {
+            awsTranslator.translate(input.message, input.sourceLangCode, input.targetLangCode)
+        }
+
+        return HandlerOutput(response?.translatedText())
     }
 }
