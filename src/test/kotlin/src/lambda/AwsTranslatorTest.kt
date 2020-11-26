@@ -4,8 +4,10 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.Test
+import software.amazon.awssdk.services.translate.TranslateClient
 import software.amazon.awssdk.services.translate.model.TranslateTextRequest
 import software.amazon.awssdk.services.translate.model.TranslateTextResponse
+import kotlin.test.assertEquals
 
 class AwsTranslatorTest {
 
@@ -13,12 +15,8 @@ class AwsTranslatorTest {
     fun translateTest() {
         val awsTranslator = AwsTranslator()
 
-        awsTranslator.translateClient = mockk()
+        val response = awsTranslator.translate("this text", "en", "es")
 
-        every { awsTranslator.translateClient.translateText(any<TranslateTextRequest>()) } returns TranslateTextResponse.builder().build()
-
-        awsTranslator.translate("this text", "en", "es")
-
-        verify(exactly = 1) { awsTranslator.translateClient }
+        assertEquals("este texto", response?.translatedText())
     }
 }
