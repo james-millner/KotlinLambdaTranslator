@@ -5,8 +5,10 @@ package src.lambda
 
 import com.amazonaws.services.lambda.runtime.Context
 import com.amazonaws.services.lambda.runtime.RequestHandler
+import java.util.*
 
 class HandlerInput {
+    var successful: Boolean = false
     var translatedText: String = ""
 }
 
@@ -14,12 +16,20 @@ class HandlerOutput
 
 class S3Handler : RequestHandler<HandlerInput, HandlerOutput> {
 
-    override fun handleRequest(input: HandlerInput?, context: Context?): HandlerOutput {
+    override fun handleRequest(input: HandlerInput?, context: Context): HandlerOutput {
 
         val s3 = S3()
 
         input?.let {
-            s3.uploadToS3(it.translatedText)
+
+            if(input.successful) {
+                context.logger.log(
+                        "Successful translation, storing in S3."
+                )
+                s3.uploadToS3(UUID.randomUUID(), it.translatedText)
+            } else {
+                context.logger.log("Failed to Translate, not storing anything in S3")
+            }
         }
 
         return HandlerOutput()

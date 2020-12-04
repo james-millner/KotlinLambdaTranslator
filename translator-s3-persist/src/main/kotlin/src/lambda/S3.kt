@@ -11,9 +11,9 @@ class S3 {
             .credentialsProvider(getDefaultCreds())
             .build()
 
-    fun uploadToS3(text: String) {
+    fun uploadToS3(fileId: UUID, text: String) {
 
-        val fileName = "/tmp/${UUID.randomUUID()}.txt"
+        val fileName = "/tmp/$fileId.txt"
 
         val file = File(fileName)
         file.createNewFile()

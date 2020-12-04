@@ -10,21 +10,42 @@ class HandlerInput {
     var message: String = ""
     var sourceLangCode: String = "en"
     var targetLangCode: String = ""
+
+    override fun toString(): String {
+        return "Message: $message, Source Language: $sourceLangCode, Target: $targetLangCode"
+    }
 }
 
 data class HandlerOutput(
-        val translatedText: String?
+        var successful: Boolean = false,
+        val translatedText: String? = null
 )
 
 class TranslatorHandler : RequestHandler<HandlerInput, HandlerOutput> {
-    override fun handleRequest(input: HandlerInput?, context: Context?): HandlerOutput {
+    override fun handleRequest(input: HandlerInput?, context: Context): HandlerOutput {
 
         val awsTranslator = AwsTranslator()
+
+        context.logger.log("Received a translation for $input")
 
         val response = input?.let {
             awsTranslator.translate(input.message, input.sourceLangCode, input.targetLangCode)
         }
 
-        return HandlerOutput(response?.translatedText())
+        return if(response?.sdkHttpResponse()!!.isSuccessful) {
+            context.logger.log("Success!")
+            context.logger.log(response.translatedText())
+            HandlerOutput(
+                    successful = true,
+                    translatedText = response.translatedText()
+            )
+        } else {
+            context.logger.log("Unsuccessful call to Translate!")
+
+            HandlerOutput(
+                    successful = false
+            )
+        }
+
     }
 }
